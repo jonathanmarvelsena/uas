@@ -45,7 +45,7 @@ public class GameList {
             int price = game.getPrice();
 
             JButton buyButton = new JButton("Buy Game");
-            buyButton.addActionListener(new BuyButtonActionListener(con, user, id));
+            buyButton.addActionListener(new BuyButtonActionListener(con, user, id, menu));
 
             Object[] data = { id, name, genre, price, buyButton };
 
@@ -65,31 +65,33 @@ public class GameList {
         menu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private class BuyButtonActionListener implements ActionListener {
-        private Controller controller;
-        private User user;
-        private int gameId;
-
-        public BuyButtonActionListener(Controller controller, User user, int gameId) {
-            this.controller = controller;
-            this.user = user;
-            this.gameId = gameId;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // Check if the user already bought this game
-            if (controller.checkPurchase(user.getId(), gameId)) {
-                JOptionPane.showMessageDialog(null, "You've already purchased this game.", "Purchase Failed", JOptionPane.ERROR_MESSAGE);
-            } else {
-                boolean success = controller.insertTransaction(user.getId(), gameId);
-
-                if (success) {
-                    JOptionPane.showMessageDialog(null, "Purchase successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        private class BuyButtonActionListener implements ActionListener {
+            private Controller controller;
+            private User user;
+            private int gameId;
+            private JFrame parentFrame;  // Add a reference to the parent JFrame
+        
+            public BuyButtonActionListener(Controller controller, User user, int gameId, JFrame parentFrame) {
+                this.controller = controller;
+                this.user = user;
+                this.gameId = gameId;
+                this.parentFrame = parentFrame;
+            }
+        
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (controller.checkPurchase(user.getId(), gameId)) {
+                    JOptionPane.showMessageDialog(parentFrame, "You've already purchased this game.", "Purchase Failed", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(null, "Purchase failed. Please try again later.", "Purchase Failed", JOptionPane.ERROR_MESSAGE);
+                    boolean success = controller.insertTransaction(user.getId(), gameId);
+        
+                    if (success) {
+                        JOptionPane.showMessageDialog(parentFrame, "Purchase successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(parentFrame, "Purchase failed. Please try again later.", "Purchase Failed", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         }
+        
     }
-}
